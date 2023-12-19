@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { UserModel } from '../models/User.js';
+import bcrypt from 'bcrypt';
+import signToken from '../utils/signToken.js';
 
 export const login = Router();
 
@@ -28,7 +30,7 @@ login.post(
         });
       }
 
-      const isPasswordValid = password === user.password;
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return response.status(400).json({
           error: 'username or password is incorrect',
@@ -36,7 +38,8 @@ login.post(
       }
 
       // @todo: generate a JWT token
-      const token = 'jwt-token';
+      const { password: pass, ...payload } = user;
+      const token = signToken(payload);
 
       return response.status(201).json({ token, username: user.username });
     } catch (error) {
