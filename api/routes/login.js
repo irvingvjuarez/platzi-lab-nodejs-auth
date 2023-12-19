@@ -38,8 +38,7 @@ login.post(
       }
 
       // @todo: generate a JWT token
-      const { password: pass, ...payload } = user;
-      const token = signToken(payload);
+      const token = signToken({sub: user._id, username: user.username});
 
       return response.status(201).json({ token, username: user.username });
     } catch (error) {
